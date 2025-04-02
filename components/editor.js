@@ -4,8 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { Node } from '@tiptap/core';
 import { Document } from '@tiptap/extension-document'; 
 import { Text } from '@tiptap/extension-text';
-import { useEffect } from 'react';
-
+import { useEffect, useState } from 'react';
 
 const CustomDocument = Document.extend({
   content: 'block+', 
@@ -22,6 +21,13 @@ const SceneHeading = Node.create({
   parseHTML() {
     return [{ tag: 'h1' }];
   },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-S': () => {
+        return this.editor.commands.toggleNode(this.name, 'action')
+      }
+    }
+  },
 });
 
 const Character = Node.create({
@@ -30,10 +36,17 @@ const Character = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, style: 'text-align: center; text-transform: uppercase; margin: 0.5em 0;' }, 0];
+    return ['p', { ...HTMLAttributes, style: 'text-align: center; text-transform: uppercase; margin-top: 1em;' }, 0];
   },
   parseHTML() {
     return [{ tag: 'p[data-type="character"]' }];
+  },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-C': () => {
+        return this.editor.commands.toggleNode(this.name, 'action')
+      }
+    }
   },
 });
 
@@ -48,6 +61,13 @@ const Dialogue = Node.create({
   parseHTML() {
     return [{ tag: 'p[data-type="dialogue"]' }];
   },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-D': () => {
+        return this.editor.commands.toggleNode(this.name, 'action')
+      }
+    }
+  },
 });
 
 const Transition = Node.create({
@@ -60,6 +80,13 @@ const Transition = Node.create({
   },
   parseHTML() {
     return [{ tag: 'p[data-type="transition"]' }];
+  },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-X': () => {
+        return this.editor.commands.toggleNode(this.name, 'action')
+      }
+    }
   },
 });
 
@@ -74,6 +101,13 @@ const Action = Node.create({
   parseHTML() {
     return [{ tag: 'p[data-type="action"]' }];
   },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-A': () => {
+        return this.editor.commands.toggleNode(this.name, 'action')
+      }
+    }
+  },
 });
 
 const ScreenplayEditor = () => {
@@ -81,11 +115,11 @@ const ScreenplayEditor = () => {
     extensions: [
       CustomDocument, 
       Text,
+      Action,
       SceneHeading,
       Character,
       Dialogue,
       Transition,
-      Action,
     ],
     content: `
       <h1>INT. LIVING ROOM - DAY</h1>
@@ -96,10 +130,12 @@ const ScreenplayEditor = () => {
     `,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none font-mono max-w-2xl mx-auto',
+        class: 'prose prose-sm focus:outline-none font-mono mx-auto w-[63ch]',
       },
     },
   });
+
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -115,7 +151,7 @@ const ScreenplayEditor = () => {
 
   return (
     <div className="p-4">
-      <div className="mb-2 flex gap-2 flex-wrap">
+      <div className="mb-2 flex gap-2 flex-wrap items-center">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
           className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
@@ -146,8 +182,33 @@ const ScreenplayEditor = () => {
         >
           Action
         </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowShortcuts(!showShortcuts)}
+            className="px-2 py-1 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center"
+            title="Keyboard Shortcuts"
+          >
+            <span className="text-sm">i</span>
+          </button>
+          {showShortcuts && (
+            <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
+              <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
+              <ul className="text-sm">
+                <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
+                <li className="mb-1"><kbd>Ctrl/Cmd + C</kbd> - Character</li>
+                <li className="mb-1"><kbd>Ctrl/Cmd + D</kbd> - Dialogue</li>
+                <li className="mb-1"><kbd>Ctrl/Cmd + X</kbd> - Transition</li>
+                <li className="mb-1"><kbd>Ctrl/Cmd + A</kbd> - Action</li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-      <EditorContent editor={editor} />
+      <div className='flex justify-center'>
+        <div className='w-[90ch] pt-10 pl-20 outline-1'>
+          <EditorContent editor={editor} />
+        </div>
+      </div>
     </div>
   );
 };
