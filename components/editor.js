@@ -16,7 +16,7 @@ const SceneHeading = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['h1', { ...HTMLAttributes, style: 'text-transform: uppercase; margin: 1em 0; text-align: left;' }, 0];
+    return ['h1', { ...HTMLAttributes, class: "text-left uppercase mb-[2ch]" }, 0];
   },
   parseHTML() {
     return [{ tag: 'h1' }];
@@ -36,7 +36,7 @@ const Character = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, style: 'text-align: center; text-transform: uppercase; margin-top: 1em;' }, 0];
+    return ['p', { ...HTMLAttributes, class: "ml-[20ch] w-[34ch]" }, 0];
   },
   parseHTML() {
     return [{ tag: 'p[data-type="character"]' }];
@@ -56,7 +56,7 @@ const Dialogue = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, style: 'margin-left: 2.5em; margin-right: 2.5em; margin-top: 0; margin-bottom: 1em;' }, 0];
+    return ['p', { ...HTMLAttributes, class: "ml-[10ch] w-[34ch] mb-[2ch]" }, 0];
   },
   parseHTML() {
     return [{ tag: 'p[data-type="dialogue"]' }];
@@ -76,7 +76,7 @@ const Transition = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, style: 'text-align: right; text-transform: uppercase; margin: 1em 0;' }, 0];
+    return ['p', { ...HTMLAttributes, class: "text-right uppercase mb-[2ch]" }, 0];
   },
   parseHTML() {
     return [{ tag: 'p[data-type="transition"]' }];
@@ -96,7 +96,7 @@ const Action = Node.create({
   content: 'text*',
   defining: true,
   renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, style: 'margin: 0.5em 0;' }, 0];
+    return ['p', { ...HTMLAttributes, class: "mb-[2ch]" }, 0];
   },
   parseHTML() {
     return [{ tag: 'p[data-type="action"]' }];
@@ -130,7 +130,7 @@ const ScreenplayEditor = () => {
     `,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none font-mono mx-auto w-[63ch]',
+        class: 'prose prose-sm focus:outline-none pt-[4ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
       },
     },
   });
@@ -151,7 +151,7 @@ const ScreenplayEditor = () => {
 
   return (
     <div className="p-4">
-      <div className="mb-2 flex gap-2 flex-wrap items-center">
+      <div className="mb-2 flex gap-2 flex-wrap items-center bg-gray-100 fixed top-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
           className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
@@ -205,7 +205,7 @@ const ScreenplayEditor = () => {
         </div>
       </div>
       <div className='flex justify-center'>
-        <div className='w-[90ch] pt-10 pl-20 outline-1'>
+        <div className='w-[97ch] pt-[6ch] pl-[10ch] outline-1'>
           <EditorContent editor={editor} />
         </div>
       </div>
