@@ -151,7 +151,7 @@ const ScreenplayEditor = () => {
 
   return (
     <div className="p-4">
-      <div className="mb-2 flex gap-2 flex-wrap items-center bg-gray-100 fixed top-0.5">
+      <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
           className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
@@ -191,7 +191,7 @@ const ScreenplayEditor = () => {
             <span className="text-sm">i</span>
           </button>
           {showShortcuts && (
-            <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
+            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
               <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
               <ul className="text-sm">
                 <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
