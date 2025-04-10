@@ -130,7 +130,7 @@ const ScreenplayEditor = () => {
     `,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none pt-[4ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
+        class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
       },
     },
   });
@@ -150,7 +150,7 @@ const ScreenplayEditor = () => {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 bg-gray-200">
       <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
@@ -205,7 +205,7 @@ const ScreenplayEditor = () => {
         </div>
       </div>
       <div className='flex justify-center'>
-        <div className='w-[97ch] pt-[6ch] pl-[10ch] outline-1'>
+        <div className='w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
           <EditorContent editor={editor} />
         </div>
       </div>
