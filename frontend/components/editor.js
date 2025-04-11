@@ -4,7 +4,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { Node } from '@tiptap/core';
 import { Document } from '@tiptap/extension-document'; 
 import { Text } from '@tiptap/extension-text';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import axios from 'axios';
+import { AuthContext } from '@/context/AuthContext';
 
 const CustomDocument = Document.extend({
   content: 'block+', 
@@ -110,7 +112,13 @@ const Action = Node.create({
   },
 });
 
-const ScreenplayEditor = () => {
+const ScreenplayEditor = ({ screenplay, screenplayID }) => {
+  const { token, loading: authLoading } = useContext(AuthContext);
+  const [title, setTitle] = useState(screenplay?.title || 'Untitled Screenplay');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+
   const editor = useEditor({
     extensions: [
       CustomDocument, 
@@ -121,13 +129,19 @@ const ScreenplayEditor = () => {
       Dialogue,
       Transition,
     ],
-    content: `
-      <h1>INT. LIVING ROOM - DAY</h1>
-      <p data-type="action">A cozy room with sunlight streaming in.</p>
-      <p data-type="character">JOHN</p>
-      <p data-type="dialogue">Hey, how's it going?</p>
-      <p data-type="transition">CUT TO:</p>
-    `,
+    content: screenplay?.content || {
+      type: 'doc',
+      content: [
+        {
+          type: 'sceneHeading',
+          content: [{ type: 'text', text: 'INT. LOCATION - DAY' }],
+        },
+        {
+          type: 'action',
+          content: [{ type: 'text', text: 'Start your screenplay here.' }],
+        },
+      ],
+    },
     editorProps: {
       attributes: {
         class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
@@ -138,6 +152,12 @@ const ScreenplayEditor = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
+    if (editor && screenplay?.content) {
+      editor.commands.setContent(screenplay.content);
+    }
+  }, [editor, screenplay]);
+
+  useEffect(() => {
     return () => {
       if (editor) {
         editor.destroy();
@@ -145,12 +165,54 @@ const ScreenplayEditor = () => {
     };
   }, [editor]);
 
+  const saveScreenplay = async () => {
+    if (authLoading) return;
+    if (!token) {
+      setError('Please log in to save');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const content = editor.getJSON();
+      await axios.put(
+          `http://localhost:4000/api/docs/${screenplayID}`,
+          { title, content },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save screenplay');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!editor) {
     return null;
   }
 
   return (
     <div className="p-4 bg-gray-200">
+      <div className="mb-4">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border rounded"
+          placeholder="Screenplay Title"
+        />
+      </div>
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={saveScreenplay}
+          disabled={saving}
+          className={`px-4 py-2 bg-blue-500 text-white rounded ${saving ? 'opacity-50' : ''}`}
+        >
+          {saving ? 'Saving...' : 'Update Screenplay'}
+        </button>
+        {error && <p className="text-red-500">{error}</p>}
+      </div>
+      
       <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
