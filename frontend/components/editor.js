@@ -1,125 +1,18 @@
 "use client";
 
 import { useEditor, EditorContent } from '@tiptap/react';
-import { Node } from '@tiptap/core';
-import { Document } from '@tiptap/extension-document'; 
 import { Text } from '@tiptap/extension-text';
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '@/context/AuthContext';
 import html2pdf from 'html2pdf.js';
-
-
-const CustomDocument = Document.extend({
-  content: 'block+', 
-});
-
-const SceneHeading = Node.create({
-  name: 'sceneHeading',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['h1', { ...HTMLAttributes, class: "text-left uppercase mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'h1' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-S': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Character = Node.create({
-  name: 'character',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "ml-[20ch] w-[34ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="character"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-C': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Dialogue = Node.create({
-  name: 'dialogue',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "ml-[10ch] w-[34ch] mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="dialogue"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-D': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Transition = Node.create({
-  name: 'transition',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "text-right uppercase mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="transition"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-X': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Action = Node.create({
-  name: 'action',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="action"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-A': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
+import { CustomDocument, SceneHeading, Character, Dialogue, Transition, Action } from '@/lib/customNodes'
 
 const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   const { token, loading: authLoading } = useContext(AuthContext);
   const [title, setTitle] = useState(screenplay?.title || 'Untitled Screenplay');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-
 
   const editor = useEditor({
     extensions: [
@@ -210,16 +103,16 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
 
   return (
     <div className="p-4">
-      <div className="mb-4">
+      
+      <div className="mb-4 flex gap-2">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border-gray-400 rounded bg-white"
           placeholder="Screenplay Title"
         />
-      </div>
-      <div className="mb-4 flex gap-2">
+
         <button
           onClick={saveScreenplay}
           disabled={saving}

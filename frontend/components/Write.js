@@ -47,9 +47,6 @@ export default function Write({ screenplayID }) {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">
-        Editing Screenplay: {screenplay?.title || 'Loading...'}
-      </h1>
       <Editor screenplay={screenplay} screenplayID={screenplayID} />
     </div>
   );
