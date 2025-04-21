@@ -7,6 +7,8 @@ import { Text } from '@tiptap/extension-text';
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '@/context/AuthContext';
+import html2pdf from 'html2pdf.js';
+
 
 const CustomDocument = Document.extend({
   content: 'block+', 
@@ -187,6 +189,21 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
     }
   };
 
+  const exportPDF = () => {
+    const editorContainer = document.querySelector('.exportable-screenplay');
+    if (editorContainer) {
+      html2pdf().set({
+        margin: 0,
+        filename: `${title}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      })
+      .from(editorContainer)
+      .save();
+    }
+  };
+
   if (!editor) {
     return null;
   }
@@ -211,6 +228,14 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
           {saving ? 'Saving...' : 'Update Screenplay'}
         </button>
         {error && <p className="text-red-500">{error}</p>}
+
+        <button
+          onClick={exportPDF}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Export to PDF
+        </button>
+
       </div>
       
       <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
@@ -267,7 +292,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
         </div>
       </div>
       <div className='flex justify-center'>
-        <div className='w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
+        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
           <EditorContent editor={editor} />
         </div>
       </div>
