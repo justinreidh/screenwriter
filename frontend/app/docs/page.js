@@ -5,6 +5,7 @@ import { AuthContext } from '@/context/AuthContext';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ScreenplayCard from '@/components/ScreenplayCard';
 
 export default function Documents() {
   const { user, token, loading: authLoading } = useContext(AuthContext);
@@ -100,9 +101,7 @@ export default function Documents() {
         <ul className="space-y-2">
           {screenplays.map((screenplay) => (
             <li key={screenplay.id}>
-              <Link href={`/write/${screenplay.id}`} className="text-blue-500 hover:underline">
-                {screenplay.title}
-              </Link>
+              <ScreenplayCard screenplay={screenplay}/>
             </li>
           ))}
         </ul>

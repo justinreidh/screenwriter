@@ -192,7 +192,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   }
 
   return (
-    <div className="p-4 bg-gray-200">
+    <div className="p-4">
       <div className="mb-4">
         <input
           type="text"

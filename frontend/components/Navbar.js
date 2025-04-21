@@ -26,7 +26,7 @@ export default function Navbar() {
           
         {user ? (
             <div className="flex gap-4 items-center">
-              <p className="text-lg">Welcome, {user.username}!</p>
+              <p className="text-white text-lg font-semibold">Welcome, {user.username}!</p>
               <button
                 onClick={logout}
                 className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
@@ -35,7 +35,7 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <Link href="/auth" className="hover:text-gray-300 transition-colors">
+            <Link href="/auth" className="text-white text-lg font-semibold hover:text-gray-300">
               Login/Signup
             </Link>
           )}
