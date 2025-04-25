@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
       axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
+    setLoading(false);
   }, []);
 
   const login = async (username, password) => {
@@ -41,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

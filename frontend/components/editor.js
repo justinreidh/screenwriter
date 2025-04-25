@@ -1,116 +1,19 @@
 "use client";
 
 import { useEditor, EditorContent } from '@tiptap/react';
-import { Node } from '@tiptap/core';
-import { Document } from '@tiptap/extension-document'; 
 import { Text } from '@tiptap/extension-text';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import axios from 'axios';
+import { AuthContext } from '@/context/AuthContext';
+import html2pdf from 'html2pdf.js';
+import { CustomDocument, SceneHeading, Character, Dialogue, Transition, Action } from '@/lib/customNodes'
 
-const CustomDocument = Document.extend({
-  content: 'block+', 
-});
+const ScreenplayEditor = ({ screenplay, screenplayID }) => {
+  const { token, loading: authLoading } = useContext(AuthContext);
+  const [title, setTitle] = useState(screenplay?.title || 'Untitled Screenplay');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-const SceneHeading = Node.create({
-  name: 'sceneHeading',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['h1', { ...HTMLAttributes, class: "text-left uppercase mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'h1' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-S': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Character = Node.create({
-  name: 'character',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "ml-[20ch] w-[34ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="character"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-C': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Dialogue = Node.create({
-  name: 'dialogue',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "ml-[10ch] w-[34ch] mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="dialogue"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-D': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Transition = Node.create({
-  name: 'transition',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "text-right uppercase mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="transition"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-X': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const Action = Node.create({
-  name: 'action',
-  group: 'block',
-  content: 'text*',
-  defining: true,
-  renderHTML({ HTMLAttributes }) {
-    return ['p', { ...HTMLAttributes, class: "mb-[2ch]" }, 0];
-  },
-  parseHTML() {
-    return [{ tag: 'p[data-type="action"]' }];
-  },
-  addKeyboardShortcuts() {
-    return {
-      'Mod-A': () => {
-        return this.editor.commands.toggleNode(this.name, 'action')
-      }
-    }
-  },
-});
-
-const ScreenplayEditor = () => {
   const editor = useEditor({
     extensions: [
       CustomDocument, 
@@ -121,13 +24,19 @@ const ScreenplayEditor = () => {
       Dialogue,
       Transition,
     ],
-    content: `
-      <h1>INT. LIVING ROOM - DAY</h1>
-      <p data-type="action">A cozy room with sunlight streaming in.</p>
-      <p data-type="character">JOHN</p>
-      <p data-type="dialogue">Hey, how's it going?</p>
-      <p data-type="transition">CUT TO:</p>
-    `,
+    content: screenplay?.content || {
+      type: 'doc',
+      content: [
+        {
+          type: 'sceneHeading',
+          content: [{ type: 'text', text: 'INT. LOCATION - DAY' }],
+        },
+        {
+          type: 'action',
+          content: [{ type: 'text', text: 'Start your screenplay here.' }],
+        },
+      ],
+    },
     editorProps: {
       attributes: {
         class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
@@ -138,6 +47,12 @@ const ScreenplayEditor = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
+    if (editor && screenplay?.content) {
+      editor.commands.setContent(screenplay.content);
+    }
+  }, [editor, screenplay]);
+
+  useEffect(() => {
     return () => {
       if (editor) {
         editor.destroy();
@@ -145,12 +60,77 @@ const ScreenplayEditor = () => {
     };
   }, [editor]);
 
+  const saveScreenplay = async () => {
+    if (authLoading) return;
+    if (!token) {
+      setError('Please log in to save');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const content = editor.getJSON();
+      await axios.put(
+          `http://localhost:4000/api/docs/${screenplayID}`,
+          { title, content },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save screenplay');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const exportPDF = () => {
+    const editorContainer = document.querySelector('.exportable-screenplay');
+    if (editorContainer) {
+      html2pdf().set({
+        margin: 0,
+        filename: `${title}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      })
+      .from(editorContainer)
+      .save();
+    }
+  };
+
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="p-4 bg-gray-200">
+    <div className="p-4">
+      
+      <div className="mb-4 flex gap-2">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border-gray-400 rounded bg-white"
+          placeholder="Screenplay Title"
+        />
+
+        <button
+          onClick={saveScreenplay}
+          disabled={saving}
+          className={`px-4 py-2 bg-blue-500 text-white rounded ${saving ? 'opacity-50' : ''}`}
+        >
+          {saving ? 'Saving...' : 'Update Screenplay'}
+        </button>
+        {error && <p className="text-red-500">{error}</p>}
+
+        <button
+          onClick={exportPDF}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Export to PDF
+        </button>
+
+      </div>
+      
       <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
@@ -205,7 +185,7 @@ const ScreenplayEditor = () => {
         </div>
       </div>
       <div className='flex justify-center'>
-        <div className='w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
+        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
           <EditorContent editor={editor} />
         </div>
       </div>
