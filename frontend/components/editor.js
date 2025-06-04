@@ -39,7 +39,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
+        class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] ml-[10ch] w-[64ch] min-h-[116ch]',
       },
     },
   });
@@ -109,14 +109,14 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border-gray-400 rounded bg-white"
+          className="w-full p-2 border-gray-400 rounded bg-white text-2xl"
           placeholder="Screenplay Title"
         />
 
         <button
           onClick={saveScreenplay}
           disabled={saving}
-          className={`px-4 py-2 bg-blue-500 text-white rounded ${saving ? 'opacity-50' : ''}`}
+          className={`px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded ${saving ? 'opacity-50' : ''}`}
         >
           {saving ? 'Saving...' : 'Update Screenplay'}
         </button>
@@ -124,14 +124,14 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
 
         <button
           onClick={exportPDF}
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
         >
           Export to PDF
         </button>
 
       </div>
       
-      <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
+      <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed left-0.5">
         <button
           onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
           className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
@@ -171,7 +171,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
             <span className="text-sm">i</span>
           </button>
           {showShortcuts && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
+            <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
               <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
               <ul className="text-sm">
                 <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
