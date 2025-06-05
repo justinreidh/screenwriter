@@ -14,6 +14,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   const [title, setTitle] = useState(screenplay?.title || 'Untitled Screenplay');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -44,8 +45,6 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
       },
     },
   });
-
-  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
     if (editor && screenplay?.content) {
@@ -105,20 +104,20 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   return (
     <div >
       
-      <div className="mb-4 flex gap-2 p-2 sticky top-0 bg-gray-100 z-50">
+      <div className="h-10  flex gap-2 pl-2 pr-2 sticky top-0 bg-gray-100 z-50 ">
         
         <button
           onClick={saveScreenplay}
           disabled={saving}
-          className={`p-2 bg-gray-300 hover:bg-gray-400 rounded ${saving ? 'opacity-50' : ''}`}
+          className={`px-2 my-1 bg-gray-300 hover:bg-gray-400  ${saving ? 'opacity-50' : ''}`}
         >
-          {saving ? 'Saving...' : 'Update'}
+          {saving ? 'Saving...' : 'Save'}
         </button>
         {error && <p className="text-red-500">{error}</p>}
 
         <button
           onClick={exportPDF}
-          className="p-2 bg-gray-300 hover:bg-gray-400 rounded"
+          className="px-2 my-1 bg-gray-300 hover:bg-gray-400 "
         >
           Export
         </button>
@@ -126,7 +125,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border-gray-400 rounded bg-white text-2xl"
+          className="w-full p-2 border-gray-400 rounded bg-white text-2xl my-1"
           placeholder="Screenplay Title"
         />
         <div className=" flex gap-2 flex-row items-center bg-gray-100 ">
@@ -169,7 +168,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
               <span className="text-sm">i</span>
             </button>
             {showShortcuts && (
-              <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
+              <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
                 <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
                 <ul className="text-sm">
                   <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
@@ -182,14 +181,11 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
             )}
           </div>
         </div>
-
-        
-
       </div>
       
       
-      <div className='flex justify-center'>
-        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
+      <div className='flex justify-center bg-gray-50 pt-4'>
+        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-white shadow-xl'>
           <EditorContent editor={editor} />
         </div>
       </div>

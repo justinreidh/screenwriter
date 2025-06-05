@@ -86,7 +86,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 min-h-dvh bg-[var(--background)]">
       <h1 className="text-3xl font-bold mb-6">Your Documents</h1>
       <button
         onClick={createNewScreenplay}
