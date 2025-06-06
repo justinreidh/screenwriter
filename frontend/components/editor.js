@@ -104,7 +104,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   return (
     <div >
       
-      <div className="h-10  flex gap-2 pl-2 pr-2 sticky top-0 bg-gray-100 z-50 ">
+      <div className="h-10  flex gap-2 pl-2 pr-2 sticky top-0 border-b-2 border-amber-300 bg-gray-100 z-50 ">
         
         <button
           onClick={saveScreenplay}
@@ -184,10 +184,15 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
       </div>
       
       
-      <div className='flex justify-center bg-gray-50 pt-4'>
+      <div className='flex justify-center bg-gray-50 pt-4 relative'>
+        
         <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-white shadow-xl'>
           <EditorContent editor={editor} />
         </div>
+        <div className='sticky top-20 mt-6 self-start flex items-start'>
+          <button className='text-start outline-1 outline-gray-500 ml-4 rounded p-2 hover:shadow-lg transition text-sm'>Edit With AI</button>
+        </div>
+        
       </div>
     </div>
   );

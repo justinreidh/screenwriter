@@ -4,12 +4,14 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Editor from '@/components/editor';
 import { AuthContext } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Write({ screenplayID }) {
   const { user, token, loading: authLoading } = useContext(AuthContext);
   const [screenplay, setScreenplay] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (authLoading) return; 
@@ -17,6 +19,7 @@ export default function Write({ screenplayID }) {
     if (!user || !token) {
       setError('Please log in to edit screenplays');
       setLoading(false);
+      router.replace('/');
       return;
     }
 
