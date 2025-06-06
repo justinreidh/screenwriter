@@ -15,6 +15,7 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -189,8 +190,38 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
         <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-white shadow-xl'>
           <EditorContent editor={editor} />
         </div>
-        <div className='sticky top-20 mt-6 self-start flex items-start'>
-          <button className='text-start outline-1 outline-gray-500 ml-4 rounded p-2 hover:shadow-lg transition text-sm'>Edit With AI</button>
+        <div className='sticky top-20 mt-6 self-start flex flex-col items-start'>
+          <button 
+            className='text-start outline-1 outline-gray-500 ml-4 rounded p-2 hover:shadow-lg transition text-sm'
+            onClick={async () => {
+              const selectedText = editor.state.doc.textBetween(
+                editor.state.selection.from,
+                editor.state.selection.to,
+                '\n'
+              );
+
+              if (selectedText.trim() === '') return;
+
+              const res = await fetch('http://localhost:4000/api/chatgpt/feedback', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: selectedText }),
+              });
+
+              const data = await res.json();
+              setFeedback(data.feedback); 
+            }}
+          >Edit With AI</button>
+          
+          {feedback && 
+            <div className='text-start outline-1 outline-gray-500 ml-4 mt-4 rounded p-2 text-sm max-w-80'>
+              <div>Feedback:</div>
+              {feedback}
+            </div>
+          }
+        
         </div>
         
       </div>
