@@ -41,8 +41,8 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="flex items-start justify-center min-h-screen p-20">
+      <div className="border-1 p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">
           {isLogin ? 'Login' : 'Register'}
         </h1>

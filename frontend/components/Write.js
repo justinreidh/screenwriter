@@ -38,7 +38,7 @@ export default function Write({ screenplayID }) {
   }, [screenplayID, user, token, authLoading]);
 
   if (authLoading || loading) {
-    return <div>Loading...</div>;
+    return <div className='p-4'>Loading...</div>;
   }
 
   if (error) {

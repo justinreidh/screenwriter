@@ -21,7 +21,7 @@ export default function Documents() {
     if (!user || !token) {
       setError('Please log in to view documents');
       setLoading(false);
-      return;
+      router.replace('/');
     }
 
     const fetchScreenplays = async () => {
@@ -30,6 +30,7 @@ export default function Documents() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setScreenplays(res.data);
+        console.log(res.data)
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load documents');
       } finally {
@@ -78,27 +79,30 @@ export default function Documents() {
   };
 
   if (authLoading || loading) {
-    return <div>Loading...</div>;
+    return <div className="p-4 min-h-dvh bg-[var(--background)]">Loading your screenplays...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="p-4 min-h-dvh bg-[var(--background)] text-red-500">{error}</div>;
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Your Documents</h1>
-      <button
-        onClick={createNewScreenplay}
-        disabled={creating}
-        className={`mb-4 px-4 py-2 bg-blue-500 text-white rounded ${creating ? 'opacity-50' : ''}`}
-      >
-        {creating ? 'Creating...' : 'Create New Screenplay'}
-      </button>
+    <div className="p-4 min-h-dvh bg-[var(--background)]">
+      <div className='flex items-center justify-between mb-6'>
+        <div className="mr-4 text-3xl font-bold outline-1 rounded p-2">Your Screenplays</div>
+        <button
+          onClick={createNewScreenplay}
+          disabled={creating}
+          className={`px-4 py-2 hover:shadow-md outline-1 font-bold rounded ${creating ? 'opacity-50' : ''}`}
+        >
+          {creating ? 'Creating...' : 'Create New Screenplay'}
+        </button>
+      </div>
+      
       {screenplays.length === 0 ? (
         <p>No screenplays yet. Create one to get started!</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex flex-wrap gap-4">
           {screenplays.map((screenplay) => (
             <li key={screenplay.id}>
               <ScreenplayCard screenplay={screenplay}/>

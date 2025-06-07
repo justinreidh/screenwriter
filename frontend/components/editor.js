@@ -8,11 +8,14 @@ import { AuthContext } from '@/context/AuthContext';
 import html2pdf from 'html2pdf.js';
 import { CustomDocument, SceneHeading, Character, Dialogue, Transition, Action } from '@/lib/customNodes'
 
+
 const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   const { token, loading: authLoading } = useContext(AuthContext);
   const [title, setTitle] = useState(screenplay?.title || 'Untitled Screenplay');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -39,12 +42,10 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] font-mono ml-[10ch] w-[64ch] min-h-[116ch]',
+        class: 'prose prose-sm focus:outline-none pt-[4ch] pb-[10ch] ml-[10ch] w-[64ch] min-h-[116ch]',
       },
     },
   });
-
-  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
     if (editor && screenplay?.content) {
@@ -102,92 +103,127 @@ const ScreenplayEditor = ({ screenplay, screenplayID }) => {
   }
 
   return (
-    <div className="p-4">
+    <div >
       
-      <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border-gray-400 rounded bg-white"
-          placeholder="Screenplay Title"
-        />
-
+      <div className="h-10  flex gap-2 pl-2 pr-2 sticky top-0 border-b-2 border-amber-300 bg-gray-100 z-50 ">
+        
         <button
           onClick={saveScreenplay}
           disabled={saving}
-          className={`px-4 py-2 bg-blue-500 text-white rounded ${saving ? 'opacity-50' : ''}`}
+          className={`px-2 my-1 bg-gray-300 hover:bg-gray-400  ${saving ? 'opacity-50' : ''}`}
         >
-          {saving ? 'Saving...' : 'Update Screenplay'}
+          {saving ? 'Saving...' : 'Save'}
         </button>
         {error && <p className="text-red-500">{error}</p>}
 
         <button
           onClick={exportPDF}
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          className="px-2 my-1 bg-gray-300 hover:bg-gray-400 "
         >
-          Export to PDF
+          Export
         </button>
-
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border-gray-400 rounded bg-white text-2xl my-1"
+          placeholder="Screenplay Title"
+        />
+        <div className=" flex gap-2 flex-row items-center bg-gray-100 ">
+          <button
+            onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
+            className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
+          >
+            Scene
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setNode('character').run()}
+            className={`px-2 py-1 ${editor.isActive('character') ? 'bg-gray-300' : 'bg-gray-100'}`}
+          >
+            Character
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setNode('dialogue').run()}
+            className={`px-2 py-1 ${editor.isActive('dialogue') ? 'bg-gray-300' : 'bg-gray-100'}`}
+          >
+            Dialogue
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setNode('transition').run()}
+            className={`px-2 py-1 ${editor.isActive('transition') ? 'bg-gray-300' : 'bg-gray-100'}`}
+          >
+            Transition
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setNode('action').run()}
+            className={`px-2 py-1 ${editor.isActive('action') ? 'bg-gray-300' : 'bg-gray-100'}`}
+          >
+            Action
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowShortcuts(!showShortcuts)}
+              className="px-2 py-1 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center"
+              title="Keyboard Shortcuts"
+            >
+              <span className="text-sm">i</span>
+            </button>
+            {showShortcuts && (
+              <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
+                <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
+                <ul className="text-sm">
+                  <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
+                  <li className="mb-1"><kbd>Ctrl/Cmd + C</kbd> - Character</li>
+                  <li className="mb-1"><kbd>Ctrl/Cmd + D</kbd> - Dialogue</li>
+                  <li className="mb-1"><kbd>Ctrl/Cmd + X</kbd> - Transition</li>
+                  <li className="mb-1"><kbd>Ctrl/Cmd + A</kbd> - Action</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
-      <div className="mb-2 flex gap-2 flex-col items-center bg-gray-100 fixed right-0.5">
-        <button
-          onClick={() => editor.chain().focus().setNode('sceneHeading').run()}
-          className={`px-2 py-1 ${editor.isActive('sceneHeading') ? 'bg-gray-300' : 'bg-gray-100'}`}
-        >
-          Scene Heading
-        </button>
-        <button
-          onClick={() => editor.chain().focus().setNode('character').run()}
-          className={`px-2 py-1 ${editor.isActive('character') ? 'bg-gray-300' : 'bg-gray-100'}`}
-        >
-          Character
-        </button>
-        <button
-          onClick={() => editor.chain().focus().setNode('dialogue').run()}
-          className={`px-2 py-1 ${editor.isActive('dialogue') ? 'bg-gray-300' : 'bg-gray-100'}`}
-        >
-          Dialogue
-        </button>
-        <button
-          onClick={() => editor.chain().focus().setNode('transition').run()}
-          className={`px-2 py-1 ${editor.isActive('transition') ? 'bg-gray-300' : 'bg-gray-100'}`}
-        >
-          Transition
-        </button>
-        <button
-          onClick={() => editor.chain().focus().setNode('action').run()}
-          className={`px-2 py-1 ${editor.isActive('action') ? 'bg-gray-300' : 'bg-gray-100'}`}
-        >
-          Action
-        </button>
-        <div className="relative">
-          <button
-            onClick={() => setShowShortcuts(!showShortcuts)}
-            className="px-2 py-1 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center"
-            title="Keyboard Shortcuts"
-          >
-            <span className="text-sm">i</span>
-          </button>
-          {showShortcuts && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-4 z-10">
-              <h3 className="font-bold mb-2">Keyboard Shortcuts</h3>
-              <ul className="text-sm">
-                <li className="mb-1"><kbd>Ctrl/Cmd + S</kbd> - Scene Heading</li>
-                <li className="mb-1"><kbd>Ctrl/Cmd + C</kbd> - Character</li>
-                <li className="mb-1"><kbd>Ctrl/Cmd + D</kbd> - Dialogue</li>
-                <li className="mb-1"><kbd>Ctrl/Cmd + X</kbd> - Transition</li>
-                <li className="mb-1"><kbd>Ctrl/Cmd + A</kbd> - Action</li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className='flex justify-center'>
-        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-gray-300'>
+      
+      <div className='flex justify-center bg-gray-50 pt-4 relative'>
+        
+        <div className='exportable-screenplay w-[97ch] pt-[6ch] pl-[10ch] mb-20 bg-white outline-1 outline-white shadow-xl'>
           <EditorContent editor={editor} />
         </div>
+        <div className='sticky top-20 mt-6 self-start flex flex-col items-start'>
+          <button 
+            className='text-start outline-1 outline-gray-500 ml-4 rounded p-2 hover:shadow-lg transition text-sm'
+            onClick={async () => {
+              const selectedText = editor.state.doc.textBetween(
+                editor.state.selection.from,
+                editor.state.selection.to,
+                '\n'
+              );
+
+              if (selectedText.trim() === '') return;
+
+              const res = await fetch('http://localhost:4000/api/chatgpt/feedback', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: selectedText }),
+              });
+
+              const data = await res.json();
+              setFeedback(data.feedback); 
+            }}
+          >Edit With AI</button>
+          
+          {feedback && 
+            <div className='text-start outline-1 outline-gray-500 ml-4 mt-4 rounded p-2 text-sm max-w-80'>
+              <div>Feedback:</div>
+              {feedback}
+            </div>
+          }
+        
+        </div>
+        
       </div>
     </div>
   );
